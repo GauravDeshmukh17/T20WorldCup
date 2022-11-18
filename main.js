@@ -2,6 +2,7 @@ let url="https://www.espncricinfo.com/series/icc-men-s-t20-world-cup-2022-23-129
 
 const request=require("request");
 const cheerio=require("cheerio");
+const allMatches=require("./allMatches");
 
 request(url,cb);
 
@@ -27,6 +28,8 @@ function handleHtml(html){
     let relativeLink=anchorElement.attr('href');
     // console.log(relativeLink);
     let fullLink="https://www.espncricinfo.com"+relativeLink;
-    console.log(fullLink);
+    // console.log(fullLink);
+
+    allMatches.allMatches(fullLink);
 
 }
