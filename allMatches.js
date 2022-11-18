@@ -1,5 +1,6 @@
 const request=require("request");
 const cheerio=require("cheerio");
+const scorecards=require("./scorecards");
 
 function allMatches(url){
     request(url,cb);
@@ -23,7 +24,10 @@ function getAllMatchLink(html){
     // console.log(storeMatchLink.length);
     for(let i=0;i<storeMatchLink.length;i++){
         let eachMatchLink=selecTool(storeMatchLink[i]).attr('href');
-        // console.log(i+1,eachMatchLink);
+        let fullMatchLink="https://www.espncricinfo.com"+eachMatchLink;
+        scorecards.scorecards(fullMatchLink);
+        break;
+        // console.log(i+1,fullMatchLink);
     }
 
 }
