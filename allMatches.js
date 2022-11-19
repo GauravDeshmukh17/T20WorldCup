@@ -26,7 +26,7 @@ function getAllMatchLink(html){
         let eachMatchLink=selecTool(storeMatchLink[i]).attr('href');
         let fullMatchLink="https://www.espncricinfo.com"+eachMatchLink;
         scorecards.scorecards(fullMatchLink);
-        break;
+        // break;
         // console.log(i+1,fullMatchLink);
     }
 
