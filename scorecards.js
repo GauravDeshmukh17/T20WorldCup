@@ -32,9 +32,9 @@ function matchDetails(html){
     let teams=selecTool('div[class="ds-bg-fill-canvas"]');
     let teamsArray=teams.text().split("Innings");
     // console.log(teamsArray);
-    let team1=teamsArray[0];
-    let team2=teamsArray[1];
-    console.log(team1+" VS "+team2);
+    let ownTeam=teamsArray[0];
+    let oppTeam=teamsArray[1];
+    console.log(ownTeam+" VS "+oppTeam);
 
     // VENUE
     let venue=descArray[2];
@@ -44,12 +44,79 @@ function matchDetails(html){
     let date=descArray[3]+descArray[4];
     console.log("Date :"+date);
 
-    console.log("-----------------------------------------------------------------------");
 
-    // filling data into json file 
-    let obj={matchNumber,team1,team2,venue,date};
-    const data=JSON.stringify(obj);
-    fs.writeFileSync("scorecards.json",data,{flag:'a'});
+    console.log();
+
+    let teamDetails=selecTool('[class="ds-w-full ds-table ds-table-md ds-table-auto  ci-scorecard-table"] tbody');
+    for(let i=0;i<teamDetails.length;i++){
+        let allRows=selecTool(teamDetails[i]).find("tr");
+        // console.log(allRows.length);
+        // console.log(allRows.text());
+        for(let j=0;j<allRows.length-3;j++){
+            let eachCol=selecTool(allRows[j]).find("td");
+            // console.log(eachCol.length);
+            // console.log(eachCol.text());
+            if(eachCol.length==8){
+
+                //BATSMAN
+                let batsman=selecTool(eachCol[0]).text();
+                console.log("Batsman : "+batsman);
+
+                // TEAM DETAILS
+                console.log("Own Team : "+ownTeam);
+                console.log("Opponent Team : "+oppTeam);
+
+                // RUNS
+                let runs=selecTool(eachCol[2]).text();
+                console.log("Runs : "+runs);
+
+                // BALLS
+                let balls=selecTool(eachCol[3]).text();
+                console.log("Balls : "+balls);
+
+                // 4's
+                let fours=selecTool(eachCol[5]).text();
+                console.log("4's : "+fours);
+
+                // 6's
+                let sixes=selecTool(eachCol[6]).text();
+                console.log("6's : "+sixes);
+
+                // Strike Rate
+                let sr=selecTool(eachCol[7]).text();
+                console.log("Strike-Rate : "+sr);
+
+                //BATSMAN WICKET DETAILS
+                let bwd=selecTool(eachCol[1]).text();
+                console.log("Batsman Wicket Details : "+bwd);
+
+                console.log();
+
+
+                // FILLING DATA INTO JSON FILE
+                let obj={
+                    "Match Number":matchNumber,
+                    "Batsman":batsman,
+                    "Own Team":ownTeam,
+                    "Opponent Team":oppTeam,
+                    "Runs":runs,
+                    "Balls":balls,
+                    "4's":fours,
+                    "6's":sixes,
+                    "Strike Rate":sr,
+                    "Batsman Wicket Details":bwd,
+                    "Venue":venue,
+                    "Date":date
+                };
+
+                const data=JSON.stringify(obj);
+                fs.writeFileSync("scorecards.json",data,{flag:'a'});
+
+            }
+
+        }
+    }
+    console.log("======================================================================");
 
 }
 
