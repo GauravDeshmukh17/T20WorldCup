@@ -47,15 +47,19 @@ function matchDetails(html){
 
     console.log();
 
-    let teamDetails=selecTool('[class="ds-w-full ds-table ds-table-md ds-table-auto  ci-scorecard-table"] tbody');
-    for(let i=0;i<teamDetails.length;i++){
-        let allRows=selecTool(teamDetails[i]).find("tr");
-        // console.log(allRows.length);
+    let teamChangeCheck=0;
+    let teamDetails=selecTool('[class="ds-w-full ds-table ds-table-md ds-table-auto  ci-scorecard-table"] tbody tr');
+    // for(let i=0;i<teamDetails.length;i++){
+        // let allRows=selecTool(teamDetails[i]).find("tr");
+        // console.log(teamDetails.length);
         // console.log(allRows.text());
-        for(let j=0;j<allRows.length-3;j++){
-            let eachCol=selecTool(allRows[j]).find("td");
+        for(let j=0;j<teamDetails.length;j++){
+            let eachCol=selecTool(teamDetails[j]).find("td");
             // console.log(eachCol.length);
             // console.log(eachCol.text());
+            if(eachCol.length==4){
+                teamChangeCheck=1;
+            }
             if(eachCol.length==8){
 
                 //BATSMAN
@@ -63,8 +67,17 @@ function matchDetails(html){
                 console.log("Batsman : "+batsman);
 
                 // TEAM DETAILS
-                console.log("Own Team : "+ownTeam);
-                console.log("Opponent Team : "+oppTeam);
+                if(teamChangeCheck==0){
+                    console.log("Own Team : "+ownTeam);
+                    console.log("Opponent Team : "+oppTeam);
+                }
+                else{
+                    console.log("Own Team : "+oppTeam);
+                    console.log("Opponent Team : "+ownTeam);
+                    let ot=ownTeam;
+                    ownTeam=oppTeam;
+                    oppTeam=ot;
+                }
 
                 // RUNS
                 let runs=selecTool(eachCol[2]).text();
@@ -115,7 +128,7 @@ function matchDetails(html){
             }
 
         }
-    }
+    // }
     console.log("======================================================================");
 
 }
