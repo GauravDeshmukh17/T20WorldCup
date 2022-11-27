@@ -1,6 +1,8 @@
 const request=require("request");
 const cheerio=require("cheerio");
 const fs=require("fs");
+const path=require("path");
+const xlsx=require("xlsx");
 
 function scorecards(url){
     // console.log(url);
@@ -32,9 +34,9 @@ function matchDetails(html){
     let teams=selecTool('div[class="ds-bg-fill-canvas"]');
     let teamsArray=teams.text().split("Innings");
     // console.log(teamsArray);
-    let ownTeam=teamsArray[0];
-    let oppTeam=teamsArray[1];
-    console.log(ownTeam+" VS "+oppTeam);
+    let team1=teamsArray[0];
+    let team2=teamsArray[1];
+    console.log(team1+" VS "+team2);
 
     // VENUE
     let venue=descArray[2];
@@ -68,17 +70,18 @@ function matchDetails(html){
 
                 // TEAM DETAILS
                 if(teamChangeCheck==0){
-                    console.log("Own Team : "+ownTeam);
-                    console.log("Opponent Team : "+oppTeam);
+                    ownTeam=team1;
+                    oppTeam=team2;
+                    console.log("Own Team : "+team1);
+                    console.log("Opponent Team : "+team2);
                 }
                 else{
-                    console.log("Own Team : "+oppTeam);
-                    console.log("Opponent Team : "+ownTeam);
-                    let ot=ownTeam;
-                    ownTeam=oppTeam;
-                    oppTeam=ot;
+                    ownTeam=team2;
+                    oppTeam=team1;
+                    console.log("Own Team : "+team2);
+                    console.log("Opponent Team : "+team1);
                 }
-
+                
                 // RUNS
                 let runs=selecTool(eachCol[2]).text();
                 console.log("Runs : "+runs);
@@ -125,12 +128,70 @@ function matchDetails(html){
                 const data=JSON.stringify(obj);
                 fs.writeFileSync("scorecards.json",data,{flag:'a'});
 
+                processInformation(matchNumber,batsman,ownTeam,oppTeam,runs,balls,fours,sixes,sr,bwd,venue,date);
             }
 
         }
     // }
     console.log("======================================================================");
 
+}
+
+
+
+function processInformation(matchNumber,batsman,ownTeam,oppTeam,runs,balls,fours,sixes,sr,bwd,venue,date){
+
+    let teamNamePath=path.join(__dirname,"IPL",ownTeam);
+        if(!fs.existsSync(teamNamePath)){
+            fs.mkdirSync(teamNamePath);
+        }
+
+    let playerFilePath=path.join(teamNamePath,batsman+".xlsx");
+    let content=excelReader(playerFilePath,batsman);
+    
+    let obj={
+        "Match Number":matchNumber,
+        "Batsman":batsman,
+        "Own Team":ownTeam,
+        "Opponent Team":oppTeam,
+        "Runs":runs,
+        "Balls":balls,
+        "4's":fours,
+        "6's":sixes,
+        "Strike Rate":sr,
+        "Batsman Wicket Details":bwd,
+        "Venue":venue,
+        "Date":date
+    };
+
+    content.push(obj);
+    excelWriter(playerFilePath,content,batsman);
+}
+
+
+function excelReader(playerFilePath,sheetName){
+    if(!fs.existsSync(playerFilePath)){
+        return[];
+    }
+    
+    let workBook=xlsx.readFile(playerFilePath);
+    let excelData=workBook.Sheets[sheetName];
+    let playerObj=xlsx.utils.sheet_to_json(excelData);
+    return playerObj;
+}
+
+function excelWriter(playerFilePath,jsObject,sheetName){
+
+    // creates new book
+    let newWorkBook=xlsx.utils.book_new();
+
+    // converts an array of JS objects to worksheet
+    let newWorkSheet=xlsx.utils.json_to_sheet(jsObject);
+
+    // aapends worksheet to workbook
+    xlsx.utils.book_append_sheet(newWorkBook,newWorkSheet,sheetName);
+    
+    xlsx.writeFile(newWorkBook,playerFilePath);
 }
 
 
